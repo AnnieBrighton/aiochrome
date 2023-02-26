@@ -15,7 +15,7 @@ class Browser:
 
     def __init__(self, url="http://127.0.0.1:9222", loop=None):
         self.dev_url = url
-        self.loop = loop or asyncio.get_event_loop()
+        self.loop = loop or asyncio.get_running_loop()
 
         if self.dev_url not in self._all_tabs:
             self._tabs = self._all_tabs[self.dev_url] = {}
@@ -68,6 +68,10 @@ class Browser:
     async def version(self, timeout=None):
         async with self.session.get("%s/json/version" % self.dev_url, json=True, timeout=timeout) as rp:
             return await rp.json()
+
+    async def close(self):
+        if not self.session.closed:
+            await self.session.close()
 
     def __str__(self):
         return '<Browser %s>' % self.dev_url
